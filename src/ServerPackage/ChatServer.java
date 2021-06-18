@@ -112,10 +112,10 @@ public class ChatServer extends Thread{
 			}
 		}
 		catch(SocketException e1) {
-			e1.printStackTrace();
+//			e1.printStackTrace();
 		}
 		catch(IOException e2) {			
-			e2.printStackTrace();
+//			e2.printStackTrace();
 		}
 	}
 	

@@ -17,8 +17,7 @@ class MessageListen implements Runnable{
 	
 	public void downloadFileFromServer(String fname) {
 		try {
-			dis.read();
-			
+			dis.read();			
 		}
 		catch(IOException e) {
 			e.printStackTrace();
@@ -33,18 +32,29 @@ class MessageListen implements Runnable{
 				String info[] = mess.split("_", 2);
 				Thread.sleep(10);
 				
-				if(info[0].equals("downfileAccept")) {
-					
+				if(info[0].equals("downfileAccept")) {		
+					long size = dis.readLong();
 					JFileChooser filechooser = new JFileChooser();
+					filechooser.setSelectedFile(new File(info[1]));
 					filechooser.showSaveDialog(client.getMainPane());
 					File f  = filechooser.getSelectedFile();
-					FileOutputStream file = new FileOutputStream(f.getAbsolutePath());
-					byte[] buffer = new byte[1];
-					
-					while(dis.readBoolean() == true) {
-						dis.read(buffer);
-						file.write(buffer);
-					}								
+					if(f != null) {
+						FileOutputStream file = new FileOutputStream(f.getAbsolutePath());
+						byte[] buffer = new byte[4096];
+						while(size >= 4096) {
+							dis.read(buffer);
+							file.write(buffer);
+							size -= 4096;
+						}
+						if(size > 0) {
+							dis.read(buffer);
+							file.write(buffer, 0, (int)size);
+						}
+//						while(dis.readBoolean() == true) {
+//							dis.read(buffer);
+//							file.write(buffer);
+//						}					
+					}
 				}
 				else {
 					client.HandlingMessReceived(mess, true);

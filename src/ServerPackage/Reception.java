@@ -82,8 +82,10 @@ class Reception implements Runnable{
 						}
 						Thread.sleep(15);
 					}
+					dis.close();
 					socket.close();
 					socket = null;
+					break;
 				}					
 				else {
 					String info[] = m.split("_", 2);
@@ -98,27 +100,39 @@ class Reception implements Runnable{
 						temp.sendEmojiMessage("emoji_" + id + "_" + info[2]);
 					}
 					else if(info[0].equals("file")){
-						info = m.split("_", 3);						
+						info = m.split("_", 3);
+						long size = dis.readLong();
 						Reception temp = ChatServer.reps.get(info[1]);
 						temp.sendFileMessage("file_" + id + "_" + info[2]);
 						
 						FileOutputStream file = new FileOutputStream("dataserver/filestore/" + info[2]);
-						byte[] buffer = new byte[1];						
-						while(dis.readBoolean() == true) {
+						byte[] buffer = new byte[4096];
+						while(size >= 4096) {
 							dis.read(buffer);
 							file.write(buffer);
+							size -= 4096;
 						}
+						if(size > 0) {
+							dis.read(buffer);
+							file.write(buffer, 0, (int)size);
+						}
+//						while(dis.readBoolean() == true) {
+//							dis.read(buffer);
+//							file.write(buffer);
+//						}
 					}
 					else if(info[0].equals("downloadfile")){
+						File f = new File("dataserver/filestore/" + info[1]);
+						long size = f.length();
 						FileInputStream file = new FileInputStream("dataserver/filestore/" + info[1]);
-						byte[] buffer = new byte[1];
+						byte[] buffer = new byte[4096];
 						dos.writeUTF("downfileAccept_" + info[1]);
 						dos.flush();						
-						while(file.read(buffer) > 0) {
-							dos.writeBoolean(true);							
+						dos.writeLong(size);
+						dos.flush();
+						while(file.read(buffer) > 0) {							
 							dos.write(buffer);
 						}
-						dos.writeBoolean(false);
 					}
 				}
 			}

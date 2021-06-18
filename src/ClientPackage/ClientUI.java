@@ -58,7 +58,7 @@ public class ClientUI extends JFrame{
             }
         });
 		
-		setTitle("Chat Apllication");
+		setTitle(name + "_Chat    [localhost_" + client.getPort() + "]");
 		setSize(670, 700);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -221,12 +221,18 @@ public class ClientUI extends JFrame{
 					filechooser.showOpenDialog(curChatPane);
 					File file = filechooser.getSelectedFile();					
 					showFileSend(file.getName());
-					try {
-						dataOut.writeUTF("file_" + curChatPerson + "_" + file.getName());
-						sendFile(file.getAbsolutePath());
-					}
-					catch(IOException e1) {
-						e1.printStackTrace();
+					if(file != null) {
+						try {
+							long size = file.length();
+							dataOut.writeUTF("file_" + curChatPerson + "_" + file.getName());
+							dataOut.flush();
+							dataOut.writeLong(size);
+							dataOut.flush();
+							sendFile(file.getAbsolutePath(), size);
+						}
+						catch(IOException e1) {
+							e1.printStackTrace();
+						}
 					}
 				}
 			}
@@ -394,16 +400,20 @@ public class ClientUI extends JFrame{
 		updateChatSP(contain);
 	}
 	
-	public void sendFile(String fname) {
+	public void sendFile(String fname, long size) {
 		try {
 			FileInputStream file = new FileInputStream(fname);
-			byte[] buffer = new byte[1];
+			byte[] buffer = new byte[4096];
 			
 			while(file.read(buffer) > 0) {
-				dataOut.writeBoolean(true);
 				dataOut.write(buffer);
 			}
-			dataOut.writeBoolean(false);
+			
+//			while(file.read(buffer) > 0) {
+//				dataOut.writeBoolean(true);
+//				dataOut.write(buffer);
+//			}
+//			dataOut.writeBoolean(false);
 		} 
 		catch (FileNotFoundException e) {
 			e.printStackTrace();
