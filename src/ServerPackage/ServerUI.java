@@ -103,6 +103,12 @@ public class ServerUI extends JFrame {
 			}
 		});
 		
+		addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent windowEvent) {
+            	System.exit(0);
+            }
+        });
+		
 		this.setTitle("Chat Server");
 		this.setSize(700, 700);
 		this.setLocationRelativeTo(null);

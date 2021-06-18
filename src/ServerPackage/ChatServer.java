@@ -33,7 +33,7 @@ public class ChatServer extends Thread{
 			FileReader fileReader = new FileReader(infile);
 			BufferedReader bufReader = new BufferedReader(fileReader);
 			String line = null;
-			while((line = bufReader.readLine()) != null) {
+			while((line = bufReader.readLine()) != null && line.isBlank() == false) {
 				String info[] = line.split("_", 3);					
 				Reception temp = new Reception(info[0], info[1], info[2], table, lock);
 				reps.put(info[0], temp);
@@ -134,9 +134,9 @@ public class ChatServer extends Thread{
 	}
 	
 	public static void main(String[] args) {
-		DefaultTableModel table = new DefaultTableModel();
-		ChatServer a = new ChatServer(7800, table);
-		a.start();
+//		DefaultTableModel table = new DefaultTableModel();
+//		ChatServer a = new ChatServer(7800, table);
+//		a.start();
 //		a.kill();
 	}
 }
